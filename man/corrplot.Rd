@@ -17,9 +17,10 @@ corrplot(corr, method = c("circle", "square", "ellipse", "number", "shade",
   cl.ratio = 0.15, cl.align.text = "c", cl.offset = 0.5, number.cex = 1,
   number.font = 2, number.digits = NULL, addshade = c("negative",
   "positive", "all"), shade.lwd = 1, shade.col = "white", p.mat = NULL,
-  sig.level = 0.05, insig = c("pch", "p-value", "blank", "n"), pch = 4,
-  pch.col = "black", pch.cex = 3, plotCI = c("n", "square", "circle",
-  "rect"), lowCI.mat = NULL, uppCI.mat = NULL, na.label = "?",
+  sig.level = 0.05, sig = c("pch", "p-value", "blank", "n"),
+  insig = c("pch", "p-value", "blank", "n"), pch = 4, pch.col = "black",
+  pch.cex = 3, plotCI = c("n", "square", "circle", "rect"),
+  lowCI.mat = NULL, uppCI.mat = NULL, na.label = "?",
   na.label.col = "black", ...)
 }
 \arguments{
@@ -165,12 +166,19 @@ negative.}
 
 \item{shade.col}{The color of shade line.}
 
-\item{p.mat}{Matrix of p-value, if \code{NULL}, arguments \code{sig.level},
+\item{p.mat}{Matrix of p-value, if \code{NULL}, arguments \code{sig.level}, \code{sig},
 \code{insig}, \code{pch}, \code{pch.col}, \code{pch.cex} is invalid.}
 
 \item{sig.level}{Significant level,  if the p-value in \code{p-mat} is bigger
 than \code{sig.level}, then the corresponding correlation coefficient is
 regarded as insignificant.}
+
+\item{sig}{Character, specialized significant correlation coefficients,
+\code{"pch"} (default), \code{"p-value"}, \code{"blank"} or \code{"n"}. If
+\code{"blank"}, wipe away the corresponding glyphs; if \code{"p-value"},
+add p-values the corresponding glyphs; if \code{"pch"}, add characters (see
+\code{pch} for details) on corresponding glyphs; if \code{"n"}, don't take
+any measures.}
 
 \item{insig}{Character, specialized insignificant correlation coefficients,
 \code{"pch"} (default), \code{"p-value"}, \code{"blank"} or \code{"n"}. If
@@ -180,13 +188,13 @@ add p-values the corresponding glyphs; if \code{"pch"}, add characters (see
 any measures.}
 
 \item{pch}{Add character on the glyphs of insignificant correlation
-coefficients(only valid when \code{insig} is \code{"pch"}). See
+coefficients(only valid when \code{sig}, \code{insig} is \code{"pch"}). See
 \code{\link{par}}.}
 
-\item{pch.col}{The color of pch (only valid when \code{insig} is
+\item{pch.col}{The color of pch (only valid when \code{sig}, \code{insig} is
 \code{"pch"}).}
 
-\item{pch.cex}{The cex of pch (only valid when \code{insig} is \code{"pch"}).}
+\item{pch.cex}{The cex of pch (only valid when \code{sig}, \code{insig} is \code{"pch"}).}
 
 \item{plotCI}{Character, method of ploting confidence interval. If
 \code{"n"}, don't plot confidence interval. If "rect", plot rectangles

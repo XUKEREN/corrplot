@@ -146,12 +146,19 @@
 #'
 #' @param shade.col The color of shade line.
 #'
-#' @param p.mat Matrix of p-value, if \code{NULL}, arguments \code{sig.level},
+#' @param p.mat Matrix of p-value, if \code{NULL}, arguments \code{sig.level}, \code{sig},
 #'   \code{insig}, \code{pch}, \code{pch.col}, \code{pch.cex} is invalid.
 #'
 #' @param sig.level Significant level,  if the p-value in \code{p-mat} is bigger
 #'   than \code{sig.level}, then the corresponding correlation coefficient is
 #'   regarded as insignificant.
+#'
+#' @param sig Character, specialized significant correlation coefficients,
+#'   \code{"pch"} (default), \code{"p-value"}, \code{"blank"} or \code{"n"}. If
+#'   \code{"blank"}, wipe away the corresponding glyphs; if \code{"p-value"},
+#'   add p-values the corresponding glyphs; if \code{"pch"}, add characters (see
+#'   \code{pch} for details) on corresponding glyphs; if \code{"n"}, don't take
+#'   any measures.
 #'
 #' @param insig Character, specialized insignificant correlation coefficients,
 #'   \code{"pch"} (default), \code{"p-value"}, \code{"blank"} or \code{"n"}. If
@@ -161,13 +168,13 @@
 #'   any measures.
 #'
 #' @param pch Add character on the glyphs of insignificant correlation
-#'   coefficients(only valid when \code{insig} is \code{"pch"}). See
+#'   coefficients(only valid when \code{sig}, \code{insig} is \code{"pch"}). See
 #'   \code{\link{par}}.
 #'
-#' @param pch.col The color of pch (only valid when \code{insig} is
+#' @param pch.col The color of pch (only valid when \code{sig}, \code{insig} is
 #'   \code{"pch"}).
 #'
-#' @param pch.cex The cex of pch (only valid when \code{insig} is \code{"pch"}).
+#' @param pch.cex The cex of pch (only valid when \code{sig}, \code{insig} is \code{"pch"}).
 #'
 #' @param plotCI Character, method of ploting confidence interval. If
 #'   \code{"n"}, don't plot confidence interval. If "rect", plot rectangles
@@ -253,6 +260,7 @@ corrplot <- function(corr,
   shade.lwd = 1, shade.col = "white",
 
   p.mat = NULL, sig.level = 0.05,
+  sig = c("pch", "p-value", "blank", "n"),
   insig = c("pch", "p-value", "blank", "n"),
   pch = 4, pch.col = "black", pch.cex = 3,
 
@@ -268,6 +276,7 @@ corrplot <- function(corr,
   order <- match.arg(order)
   hclust.method <- match.arg(hclust.method)
   addshade <- match.arg(addshade)
+  sig <- match.arg(sig)
   insig <- match.arg(insig)
   plotCI <- match.arg(plotCI)
 
@@ -745,6 +754,34 @@ corrplot <- function(corr,
       symbols(pos.pNew[,1][ind.p], pos.pNew[,2][ind.p], inches = FALSE,
         squares = rep(1, length(pos.pNew[,1][ind.p])),
         fg = addgrid.col, bg = bg, add = TRUE)
+    }
+  }
+
+  if (!is.null(p.mat) && sig != "n") {
+    if (order != "original") {
+      p.mat <- p.mat[ord, ord]
+    }
+
+    pos.pNew  <- getPos.Dat(p.mat)[[1]]
+    pNew      <- getPos.Dat(p.mat)[[2]]
+
+    ind.p <- which(pNew <= sig.level)
+    p_sig <- length(ind.p) > 0
+
+    if (sig == "pch" && p_sig) {
+      points(pos.pNew[,1][ind.p], pos.pNew[,2][ind.p],
+             pch = pch, col = pch.col, cex = pch.cex, lwd = 2)
+    }
+
+    if (sig == "p-value" && p_sig) {
+      text(pos.pNew[,1][ind.p], pos.pNew[,2][ind.p],
+           round(pNew[ind.p],2), col = pch.col)
+    }
+
+    if (sig == "blank" && p_sig) {
+      symbols(pos.pNew[,1][ind.p], pos.pNew[,2][ind.p], inches = FALSE,
+              squares = rep(1, length(pos.pNew[,1][ind.p])),
+              fg = addgrid.col, bg = bg, add = TRUE)
     }
   }
 
