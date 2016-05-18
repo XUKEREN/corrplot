@@ -276,10 +276,10 @@ corrplot <- function(corr,
   order <- match.arg(order)
   hclust.method <- match.arg(hclust.method)
   addshade <- match.arg(addshade)
-  if (length(sig) == 1) {
-    insig = "n"
+  if (length(sig) == 1 && length(insig) > 1) {
+    insig <- "n"
   } else if (length(sig) > 1) {
-    sig = "n"
+    sig <- "n"
     insig <- match.arg(insig)
   }
   plotCI <- match.arg(plotCI)
