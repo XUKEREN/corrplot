@@ -276,8 +276,12 @@ corrplot <- function(corr,
   order <- match.arg(order)
   hclust.method <- match.arg(hclust.method)
   addshade <- match.arg(addshade)
-  sig <- match.arg(sig)
-  insig <- match.arg(insig)
+  if (length(sig) == 1) {
+    insig = "n"
+  } else if (length(sig) > 1) {
+    sig = "n"
+    insig <- match.arg(insig)
+  }
   plotCI <- match.arg(plotCI)
 
   if (!is.matrix(corr) && !is.data.frame(corr)) {
