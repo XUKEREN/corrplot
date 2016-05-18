@@ -762,7 +762,7 @@ corrplot <- function(corr,
   }
 
   if (!is.null(p.mat) && sig != "n") {
-    if (order != "original") {
+    if (insig == "n" && order != "original") {
       p.mat <- p.mat[ord, ord]
     }
 
