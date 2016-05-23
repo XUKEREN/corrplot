@@ -27,23 +27,38 @@ corrplot.pair <- function(
   upper = "circle",
   col1 = NULL, col2 = NULL,
   order = c("original", "AOE", "FPC", "hclust", "alphabet"),
+  order.guide = c("l", "u"),
   hclust.method = c("complete", "ward", "ward.D", "ward.D2", "single",
                     "average", "mcquitty", "median", "centroid"),
-  tl.pos = c("d", "lt", "n"),
+  tl.pos = c("d", "lt", "n"), tl.cex = 1,
+  cl.offset = c(2, 0.5),
   diag = c("n", "l", "u"),
   bg = "white",
   addgrid.col = "grey",
   p.mat1 = NULL, sig.level1 = 0.05,
   p.mat2 = NULL, sig.level2 = 0.05,
-  pch1 = 4, pch.col1 = "black", pch.cex1 = 3,
-  pch2 = 4, pch.col2 = "black", pch.cex2 = 3,
+  sig = c("pch", "p-value", "blank", "n"),
+  insig = c("pch", "p-value", "blank", "n"),
+  pch1 = 4, pch1.col = "black", pch1.cex = 3,
+  pch2 = 4, pch2.col = "black", pch2.cex = 3,
   plotCI = c("n", "square", "circle", "rect"),
   ...)
 {
   order <- match.arg(order)
+  order.guide <- match.arg(order.guide)
   tl.pos <- match.arg(tl.pos)
   diag <- match.arg(diag)
   n <- nrow(corr1)
+  if (length(sig) == 1 && length(insig) > 1) {
+    insig <- "n"
+  } else if (length(sig) > 1) {
+    sig <- "n"
+    insig <- match.arg(insig)
+  }
+
+  if (!identical(dim(corr1), dim(corr2))) {
+    stop("corr1 and corr2 should have same dimentions")
+  }
 
   if (is.null(col1)) {
     col1 <- colorRampPalette(c("#6800AD", "#8633BD", "#A466CD", "#C299DE",
@@ -57,7 +72,11 @@ corrplot.pair <- function(
   }
 
   if (order != "original") {
-    ord <- corrMatOrder(corr1, order = order, hclust.method = hclust.method)
+    if (order.guide == "u") {
+      ord <- corrMatOrder(corr1, order = order, hclust.method = hclust.method)
+    } else if (order.guide == "l") {
+      ord <- corrMatOrder(corr2, order = order, hclust.method = hclust.method)
+    }
     corr1 <- corr1[ord, ord]
     corr2 <- corr2[ord, ord]
     p.mat1 <- p.mat1[ord, ord]
@@ -79,15 +98,19 @@ corrplot.pair <- function(
 
   corrplot(corr1, type = "upper", method = upper, diag = TRUE,
            col = col1, order = order,
-           tl.pos = tl.pos, cl.offset = c(2, 0.5), plotCI = plotCI_upper,
+           tl.pos = tl.pos, tl.cex = tl.cex,
+           cl.offset = cl.offset, plotCI = plotCI_upper,
            p.mat = p.mat1, sig.level = sig.level1,
-           pch = pch1, pch.col = pch.col1, pch.cex = pch.cex1, ...)
+           sig = sig, insig = insig,
+           pch = pch1, pch.col = pch1.col, pch.cex = pch1.cex, ...)
 
   corrplot(corr2, add = TRUE, type = "lower", method = lower,
            col = col2, order = order,
-           tl.pos = "n", cl.pos = "r", plotCI = plotCI_lower,
+           tl.pos = "n", tl.cex = tl.cex,
+           cl.pos = "r", plotCI = plotCI_lower,
            p.mat = p.mat2, sig.level = sig.level2,
-           pch = pch1, pch.col = pch.col1, pch.cex = pch.cex1, ...)
+           sig = sig, insig = insig,
+           pch = pch2, pch.col = pch2.col, pch.cex = pch2.cex, ...)
 
   if (diag == "n" && tl.pos != "d") {
     symbols(1:n, n:1, add = TRUE, bg = bg, fg = addgrid.col,
