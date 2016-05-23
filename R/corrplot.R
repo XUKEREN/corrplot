@@ -252,7 +252,7 @@ corrplot <- function(corr,
 
   cl.pos = NULL, cl.lim = NULL,
   cl.length = NULL, cl.cex = 0.8, cl.ratio = 0.15,
-  cl.align.text = "c", cl.offset = 0.5,
+  cl.align.text = "c", cl.offset = c(0.5, 0.5),
 
   number.cex = 1, number.font = 2, number.digits = NULL,
 
@@ -803,14 +803,14 @@ corrplot <- function(corr,
 
     if (cl.pos == "r") {
       vertical <- TRUE
-      xlim <- c(m2 + 0.5 + mm * 0.02, m2 + 0.5 + mm * cl.ratio)
-      ylim <- c(n1 - 0.5, n2 + 0.5)
+      xlim <- c(m2 + cl.offset[1] + mm * 0.02, m2 + cl.offset[1] + mm * cl.ratio)
+      ylim <- c(n1 - cl.offset[2], n2 + cl.offset[2])
     }
 
     if (cl.pos == "b") {
       vertical <- FALSE
-      xlim <- c(m1 - 0.5, m2 + 0.5)
-      ylim <- c(n1 - 0.5 - nn * cl.ratio, n1 - 0.5 - nn * 0.02)
+      xlim <- c(m1 - cl.offset[1], m2 + cl.offset[1])
+      ylim <- c(n1 - cl.offset[2] - nn * cl.ratio, n1 - cl.offset[2] - nn * 0.02)
     }
 
     colorlegend(colbar = colbar, labels = round(labels, 2),
