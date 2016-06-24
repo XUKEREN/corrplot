@@ -236,7 +236,7 @@
 #' @import graphics grDevices stats
 #' @export
 corrplot <- function(corr,
-  method = c("circle", "square", "ellipse", "number", "shade", "color", "pie"),
+  method = c("circle", "square", "ellipse", "number", "shade", "color", "pie", "psquare"),
   type = c("full", "lower", "upper"), add = FALSE,
   col = NULL, bg = "white", title = "", is.corr = TRUE,
   diag = TRUE, outline = FALSE, mar = c(0, 0, 0, 0),
@@ -642,6 +642,17 @@ corrplot <- function(corr,
   if (method == "square" && plotCI == "n") {
     symbols(Pos, add = TRUE, inches = FALSE,
             squares = abs(DAT) ^ 0.5, bg = col.fill, fg = col.border)
+  }
+
+  ## psquare
+  if (method == "psquare" && plotCI == "n") {
+    if (is.null(p.mat) || is.null(sig.level)) {
+      stop("method psquare requires p.mat")
+    }
+    DAT.p = (log10(p.mat)/log10(sig.level)) ^ 0.5
+    DAT.p = as.vector(ifelse(DAT.p > 1, 1, DAT.p))
+    symbols(Pos, add = TRUE, inches = FALSE,
+            squares = DAT.p ^ 0.5, bg = col.fill, fg = col.border)
   }
 
   ## color
