@@ -818,7 +818,7 @@ corrplot <- function(corr,
     pos.pNew  <- getPos.Dat(p.mat)[[1]]
     pNew      <- getPos.Dat(p.mat)[[2]]
 
-    ind.p <- which(pNew <= sig.level)
+    ind.p <- which(0 <= pNew & pNew < sig.level)
     p_sig <- length(ind.p) > 0
 
     if (sig == "pch" && p_sig) {
