@@ -686,6 +686,7 @@ corrplot <- function(corr,
     }
     DAT.p <- apply_mat_filter(p.mat)
     DAT.p <- DAT.p[is.finite(DAT.p)]
+    DAT.p <- ifelse(DAT.p < 0, 0, DAT.p)
     DAT.p <- (log10(DAT.p)/log10(sig.level)) ^ 0.5
     DAT.p <- as.vector(ifelse(DAT.p > 1, 1, DAT.p))
     symbols(Pos, add = TRUE, inches = FALSE,
