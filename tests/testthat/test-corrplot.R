@@ -2,23 +2,63 @@ context("Visualization of a correlation matrix")
 
 # Tests ==========
 
-test_that("Replacing IF statements with SWITCH statement", {
-  orig_code <- function(type) {
-    tl.pos <- NULL
-    if (type == "full")  tl.pos <- "lt"
-    if (type == "lower") tl.pos <- "ld"
-    if (type == "upper") tl.pos <- "td"
-    return(tl.pos)
+test_that("Testing 'cl.pos' parameter", {
+  M <- cor(mtcars)
+  expect_silent(corrplot(M, cl.pos = TRUE))
+  expect_silent(corrplot(M, cl.pos = FALSE))
+  expect_silent(corrplot(M, cl.pos = "r"))
+  expect_silent(corrplot(M, cl.pos = "b"))
+})
+
+test_that("Testing 'tl.pos' parameter", {
+  M <- cor(mtcars)
+  expect_silent(corrplot(M, tl.pos = TRUE))
+  expect_silent(corrplot(M, tl.pos = FALSE))
+  expect_silent(corrplot(M, tl.pos = "d"))
+  expect_silent(corrplot(M, tl.pos = "n"))
+  expect_silent(corrplot(M, tl.pos = "lt"))
+  expect_silent(corrplot(M, tl.pos = "ld", type = "lower"))
+  expect_silent(corrplot(M, tl.pos = "td", type = "upper"))
+})
+
+
+test_that("Testing 'cl.lim' parameter", {
+  M <- cor(mtcars)
+  expect_silent(corrplot(M, cl.lim = c(-1, 1)))
+  expect_error(corrplot(M, cl.lim = c(0, 1)),
+               regexp = "color limits should cover matrix")
+})
+
+test_that("Testing 'tl.pos' parameter", {
+  M <- cor(mtcars)
+  expect_silent(corrplot(M, tl.pos = "td", type = "upper"))
+  expect_error(corrplot(M, tl.pos = "td", type = "lower"),
+               regexp = "type should be")
+  expect_silent(corrplot(M, tl.pos = "ld", type = "lower"))
+  expect_error(corrplot(M, tl.pos = "ld", type = "upper"),
+               regexp = "type should be")
+})
+
+test_that("Testing 'corrRect' function", {
+  M <- cor(mtcars)
+  corrplot(M, method = "circle", order = "FPC")
+  corrRect(c(5, 6))
+})
+
+test_that("Testing 'outline' parameter", {
+  M <- cor(mtcars)
+  expect_silent(corrplot(M, outline = FALSE))
+  expect_silent(corrplot(M, outline = TRUE))
+  expect_silent(corrplot(M, outline = "white"))
+
+  for (unsupported in list(42, NA, NULL)) {
+    expect_error(corrplot(M, outline = unsupported),
+                 regexp = "Unsupported value type for parameter outline")
   }
 
-  switch_code <- function(type) {
-    tl.pos <- switch(type, full = "lt", lower = "ld", upper = "td")
-    return(tl.pos)
-  }
+  expect_error(corrplot(M, outline = ""),
+               regexp = "invalid color name")
 
-  for (t in c("full", "lower", "upper", "DUMMY", NULL)) {
-    expect_equal(orig_code(t), switch_code(t))
-  }
 })
 
 test_that("Issue #7: Enable to plot a matrix with NA", {
@@ -27,12 +67,11 @@ test_that("Issue #7: Enable to plot a matrix with NA", {
   expect_equal(corrplot(M), M)
 })
 
-test_that("Issue #70: Enable to plot a matrix with NA when 'is.corr = F'", {
+test_that("Issue #70: Enable to plot a matrix with NA when 'is.corr = FALSE'", {
   M <- matrix(0, ncol = 5, nrow = 5)
   M[1,1] <- NA
-  expect_true(is.matrix(corrplot(M, is.corr = F)))
+  expect_true(is.matrix(corrplot(M, is.corr = FALSE)))
 })
-
 
 test_that("Issue #20: plotmath expressions in rownames / colnames", {
   M <- cor(mtcars)[1:5,1:5]
@@ -41,20 +80,26 @@ test_that("Issue #20: plotmath expressions in rownames / colnames", {
   corrplot(M)
 })
 
+test_that("Issue #20: using dollar sign in plotmath expressions", {
+  M <- cor(mtcars)
+  rownames(M)[1] <- " $"
+  corrplot(M)
+})
+
 test_that("Issue #21: plotCI=rect incompatible with some methods", {
   M <- cor(mtcars)
   L <- M - 0.1
   U <- M + 0.1
   expect_equal(corrplot.mixed(M, lower = "circle", upper = "number",
-                              low = L, upp = U, plotCI = "rect"), M)
+                              lowCI = L, uppCI = U, plotCI = "rect"), M)
   expect_equal(corrplot.mixed(M, lower = "number", upper = "circle",
-                              low = L, upp = U, plotCI = "rect"), M)
+                              lowCI = L, uppCI = U, plotCI = "rect"), M)
   expect_equal(corrplot.mixed(M, lower = "circle", upper = "square",
-                              low = L, upp = U, plotCI = "rect"), M)
+                              lowCI = L, uppCI = U, plotCI = "rect"), M)
   expect_equal(corrplot.mixed(M, lower = "ellipse", upper = "square",
-                              low = L, upp = U, plotCI = "rect"), M)
+                              lowCI = L, uppCI = U, plotCI = "rect"), M)
   expect_equal(corrplot.mixed(M, lower = "pie", upper = "square",
-                              low = L, upp = U, plotCI = "rect"), M)
+                              lowCI = L, uppCI = U, plotCI = "rect"), M)
 })
 
 test_that("Issue #43: Return value should be the same as corrplot function", {
@@ -75,8 +120,14 @@ test_that("Non-correlation matrix", {
 
 test_that("Try different ordering", {
   M <- cor(mtcars)
+
   expect_true(identical(M, corrplot(M)))
   expect_false(identical(M, corrplot(M, order = "AOE")))
+  expect_false(identical(M, corrplot(M, order = "FPC")))
+  expect_false(identical(M, corrplot(M, order = "hclust")))
+  expect_false(identical(M, corrplot(M, order = "alphabet")))
+
+  expect_silent(corrplot(M, addrect = 2, order = "hclust", type = "full"))
 })
 
 test_that("Plot without a grid should not crash", {
@@ -132,7 +183,8 @@ test_that("Using 'number.digits' parameter", {
 
   expect_silent(corrplot(M, number.digits = 0))
   expect_silent(corrplot(M, number.digits = 1))
-  expect_silent(corrplot(M, method = "number", number.digits = 200000))
+  # the allowed values for nsmall parameter of format() function is [0, 20]
+  expect_silent(corrplot(M, method = "number", number.digits = 20))
 
   expect_error(corrplot(M, number.digits = 1.2), regexp = "is not TRUE" )
   expect_error(corrplot(M, number.digits = -1), regexp = "is not TRUE" )
@@ -145,4 +197,39 @@ test_that("par() is restored after corrplot()", {
   par2 <- par("mar")
   dev.off()
   expect_identical(par1, par2)
+})
+
+test_that("Issue #79: Changing aspect ratio for the plot", {
+  M <- matrix(rnorm(70), ncol = 7)
+  expect_silent(corrplot(M, is.corr = FALSE, win.asp = .7, method = "circle"))
+  expect_silent(corrplot(M, is.corr = FALSE, win.asp = .7, method = "square"))
+  expect_error(corrplot(M, is.corr = FALSE, win.asp = .7, method = "pie"),
+               regexp = "supported only for circle and square methods")
+})
+
+test_that("Issue #18", {
+  M <- cor(mtcars)
+  # TODO: calling the function without actually checking anything
+  expect_silent(corrplot(M, method = "pie"))
+  expect_silent(corrplot(M, method = "pie", outline = TRUE))
+  expect_silent(corrplot(M, method = "pie", outline = "white"))
+})
+
+test_that("Issue #76: separate `col` parameters corrplot.mixed", {
+  M <- cor(mtcars)
+  expect_silent(corrplot.mixed(M, lower.col = "black"))
+  expect_silent(corrplot.mixed(M, lower = "circle",
+                               upper = "number", upper.col = "black"))
+})
+
+test_that("Issue #99: Mark significant correlations", {
+  M <- cor(mtcars)
+  fakepmat <- 1 - abs(M) ^ .2  # Hmisc::rcorr provides a p-value matrix, but
+  # don't want to introduce the dependency
+  expect_silent(corrplot(M, p.mat = fakepmat, insig = "label_sig", pch = "!",
+                         sig.level = c(.001, .1, .99)))
+  expect_silent(corrplot(M[1:2, ], p.mat = fakepmat[1:2, ], method = "ellipse",
+                         insig = "label_sig", pch.col = "white"))
+  expect_silent(corrplot(M, p.mat = fakepmat, insig = "label_sig",
+                         pch = "p<.05", pch.cex = .5, order = "AOE"))
 })

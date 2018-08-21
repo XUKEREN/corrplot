@@ -1,14 +1,24 @@
+YEAR <- strftime(meta$Date, "%Y")
+
+# all roles, see also http://www.loc.gov/marc/relators/relaterm.html
+ALL <- eval(parse(text = meta$`Authors@R`))
+
+# authors only
+AUTHORS <- ALL[[ sapply(ALL$role, function(x) "aut" %in% x) ]]
+AUTHORS <- paste(AUTHORS$given, AUTHORS$family, collapse = " and ")
+
 bibentry("Manual",
-	title="R package 'corrplot': Visualization of a correlation matrix",
-	author="Taiyun Wei and Viliam Simko",
-	year="2016",
-	note="(Version 0.77)",
-	url="https://github.com/taiyun/corrplot",
+  key = paste0(meta$Package, YEAR),
+	title = sprintf("R package \"%s\": %s", meta$Package, meta$Title),
+	author = AUTHORS,
+	year = YEAR,
+	note = sprintf("(Version %s)", meta$Version),
+	url = meta$URL,
 
-	textVersion =
-  	paste("T. Wei and V. Simko (2016). ",
-  			"R package 'corrplot': Visualization of a correlation matrix (Version 0.77). ",
-  			"Available from https://github.com/taiyun/corrplot",
-  			sep=""),
+	mheader = sprintf("To cite %s in publications use:", meta$Package),
 
-	mheader = "To cite corrplot in publications use:")
+	textVersion = sprintf(
+    "%s (%s). R package \"%s\": %s (Version %s). Available from %s",
+    AUTHORS, YEAR, meta$Package, meta$Title, meta$Version, meta$URL
+	)
+)

@@ -14,8 +14,11 @@
 #' @param bg The background color.
 #' @param addgrid.col See the \code{addgrid.col} parameter in the function
 #'   \code{\link{corrplot}}
+#' @param lower.col Passed as \code{col} parameter to the lower matrix.
+#' @param upper.col Passed as \code{col} parameter to the upper matrix.
 #' @param plotCI See the \code{plotCI} parameter in the function
 #'   \code{\link{corrplot}}
+#' @param mar See \code{\link{par}}.
 #' @param \dots Additional arguments for corrplot's wrappers
 #'
 #' @author Taiyun Wei
@@ -29,7 +32,10 @@ corrplot.mixed <- function(
   diag = c("n", "l", "u"),
   bg = "white",
   addgrid.col = "grey",
+  lower.col = NULL,
+  upper.col = NULL,
   plotCI = c("n", "square", "circle", "rect"),
+  mar = c(0, 0, 0, 0),
   ...)
 {
   tl.pos <- match.arg(tl.pos)
@@ -48,16 +54,24 @@ corrplot.mixed <- function(
   plotCI_lower <- adjust_plotCI(plotCI, lower)
   plotCI_upper <- adjust_plotCI(plotCI, upper)
 
+  # fixed issue #102
+  # restore this parameter when exiting the corrplot.mixed function in any way
+  oldpar <- par(mar = mar, bg = "white")
+  on.exit(par(oldpar), add = TRUE)
+
   corrplot(corr, type = "upper", method = upper, diag = TRUE,
-           tl.pos = tl.pos, plotCI = plotCI_upper, ...)
+           tl.pos = tl.pos, plotCI = plotCI_upper,
+           col = upper.col, mar = mar, ...)
 
   corrplot(corr, add = TRUE, type = "lower", method = lower,
            diag = (diag == "l"),
-           tl.pos = "n", cl.pos = "n", plotCI = plotCI_lower, ...)
+           tl.pos = "n", cl.pos = "n", plotCI = plotCI_lower,
+           col = lower.col, mar = mar, ...)
 
   if (diag == "n" && tl.pos != "d") {
-      symbols(1:n, n:1, add = TRUE, bg = bg, fg = addgrid.col,
-              inches = FALSE, squares = rep(1, n))
+    # draw empty rectangles over the diagonal to "clean" it graphically
+    symbols(1:n, n:1, add = TRUE, bg = bg, fg = addgrid.col,
+            inches = FALSE, squares = rep(1, n))
   }
 
   # fixes issue #43

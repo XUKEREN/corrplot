@@ -6,12 +6,14 @@
 \usage{
 corrplot.pair(corr1, corr2, lower = "circle", upper = "circle",
   col1 = NULL, col2 = NULL, order = c("original", "AOE", "FPC", "hclust",
-  "alphabet"), hclust.method = c("complete", "ward", "ward.D", "ward.D2",
-  "single", "average", "mcquitty", "median", "centroid"), tl.pos = c("d",
-  "lt", "n"), diag = c("n", "l", "u"), bg = "white", addgrid.col = "grey",
+  "alphabet"), order.guide = c("l", "u"), hclust.method = c("complete",
+  "ward", "ward.D", "ward.D2", "single", "average", "mcquitty", "median",
+  "centroid"), tl.pos = c("d", "lt", "n"), tl.cex = 1, cl.offset = c(2,
+  0.5), diag = c("n", "l", "u"), bg = "white", addgrid.col = "grey",
   p.mat1 = NULL, sig.level1 = 0.05, p.mat2 = NULL, sig.level2 = 0.05,
-  pch1 = 4, pch.col1 = "black", pch.cex1 = 3, pch2 = 4,
-  pch.col2 = "black", pch.cex2 = 3, plotCI = c("n", "square", "circle",
+  sig = c("pch", "p-value", "blank", "n"), insig = c("pch", "p-value",
+  "blank", "n"), pch1 = 4, pch1.col = "black", pch1.cex = 3, pch2 = 4,
+  pch2.col = "black", pch2.cex = 3, plotCI = c("n", "square", "circle",
   "rect"), ...)
 }
 \arguments{
@@ -37,9 +39,9 @@ of lower triangular) or \code{"u"} (draw the glyphs of upper triangular).}
 \item{plotCI}{See the \code{plotCI} parameter in the function
 \code{\link{corrplot}}}
 
-\item{corr}{Matrix, the correlation matrix to visualize.}
-
 \item{\dots}{Additional arguments for corrplot's wrappers}
+
+\item{corr}{Matrix, the correlation matrix to visualize.}
 }
 \description{
 Using mixed methods to visualize a correlation matrix.
@@ -62,4 +64,3 @@ corrplot.mixed(M2, tl.pos = "n")
 \author{
 Taiyun Wei
 }
-
